@@ -80,22 +80,27 @@ img {
 /* testing */
 /* direct add to search-wrap */
 .ow, .search-wrap {
-/*   overflow-wrap: break-word; */
-/*   word-wrap: break-word; */
+   overflow-wrap: break-word; 
+   word-wrap: break-word; 
   word-break: break-all;
 /*   hyphens: auto; */
 /*   white-space: pre; */
 }
-/* testing */
-.search-wrap {
- text-align: center;
-}
-/* testing */
-.search {
-  text-align: left;
+
+  /* testing */
+@media (min-width: 864px) {
+  /* testing */
+  .search-wrap {
+    width: 100%;
+  }
+
+  /* testing */
+  .omninav {
+    display: grid;
+    place-items: center;
+  }
 }
 
-/* Text Styles*/
 .x-large {
   font-size: 4rem;
   line-height: 1.2;
