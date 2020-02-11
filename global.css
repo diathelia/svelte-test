@@ -79,8 +79,8 @@ img {
 /* bulk-rule overflow wrap text */
 /* test: direct add to search-wrap */
 .ow, .search-wrap {
-  overflow-wrap: break-word;
-  word-wrap: break-word;
+/*   overflow-wrap: break-word; */
+/*   word-wrap: break-word; */
   word-break: break-all;
 /*   hyphens: auto; */
 /*   white-space: pre; */
@@ -485,7 +485,7 @@ table th {
     margin-right: auto;
 	} */
   /* changed from omninav to try preserve 100vw bg-color */
-  .search {
+  .search-wrap {
     /* width: 29rem; */
     max-width: 800px; /* shrink this to ~500px for v-wide landscape type displays */
   }
