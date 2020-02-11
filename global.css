@@ -77,13 +77,22 @@ img {
 }
 
 /* bulk-rule overflow wrap text */
-/* test: direct add to search-wrap */
+/* testing */
+/* direct add to search-wrap */
 .ow, .search-wrap {
 /*   overflow-wrap: break-word; */
 /*   word-wrap: break-word; */
   word-break: break-all;
 /*   hyphens: auto; */
 /*   white-space: pre; */
+}
+/* testing */
+.omninav {
+ text-align: center;
+}
+/* testing */
+.search-wrap {
+  text-align: left;
 }
 
 /* Text Styles*/
@@ -484,6 +493,7 @@ table th {
     margin-left: auto;
     margin-right: auto;
 	} */
+  /* testing */
   /* changed from omninav to try preserve 100vw bg-color */
   .search-wrap {
     /* width: 29rem; */
