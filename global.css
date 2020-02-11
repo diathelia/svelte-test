@@ -77,11 +77,13 @@ img {
 }
 
 /* bulk-rule overflow wrap text */
-.ow {
+/* test: direct add to search-wrap */
+.ow, .search-wrap {
   overflow-wrap: break-word;
   word-wrap: break-word;
-  hyphens: auto;
-  white-space: pre;
+  word-break: break-all;
+/*   hyphens: auto; */
+/*   white-space: pre; */
 }
 
 /* Text Styles*/
@@ -482,8 +484,9 @@ table th {
     margin-left: auto;
     margin-right: auto;
 	} */
-  .omninav {
+  /* changed from omninav to try preserve 100vw bg-color */
+  .search {
     /* width: 29rem; */
-    max-width: 800px;
+    max-width: 800px; /* shrink this to ~500px for v-wide landscape type displays */
   }
 }
