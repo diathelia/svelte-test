@@ -77,28 +77,14 @@ img {
 }
 
 /* bulk-rule overflow wrap text */
-/* testing */
 /* direct add to search-wrap */
-.ow, .search-wrap {
-   overflow-wrap: break-word; 
-   word-wrap: break-word; 
+.ow,
+.search-wrap {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
   word-break: break-all;
-/*   hyphens: auto; */
-/*   white-space: pre; */
-}
-
-  /* testing */
-@media (min-width: 864px) {
-  /* testing */
-  .search-wrap {
-    width: 100%;
-  }
-
-  /* testing */
-  .omninav {
-    display: grid;
-    place-items: center;
-  }
+  /*   hyphens: auto; */
+  /*   white-space: pre; */
 }
 
 .x-large {
@@ -444,13 +430,6 @@ table th {
   transition: opacity 1000ms ease-in;
 }
 
-/* mobile width and mobile landscape-height  */
-@media (max-width: 510px), (max-height: 470px) {
-  body {
-    font-size: 0.8rem;
-  }
-}
-
 /* Tablet Styles */
 @media (max-width: 700px) {
   .hide-sm {
@@ -489,19 +468,5 @@ table th {
   .navbar ul {
     text-align: center;
     justify-content: center;
-  }
-}
-
-/* bigger than */
-@media (min-width: 510px) {
-  /* .wrap {
-    margin-left: auto;
-    margin-right: auto;
-	} */
-  /* testing */
-  /* changed from omninav to try preserve 100vw bg-color */
-  .search-wrap {
-    /* width: 29rem; */
-    max-width: 800px; /* shrink this to ~500px for v-wide landscape type displays */
   }
 }
