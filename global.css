@@ -3,7 +3,7 @@
 */
 
 /* style aims:
-   * use (_) in UI, use reccomended syntax in css (-) and in js (camelCase)
+   * use '_' in UI, use '-' in css and 'camelCase' in js
 	 * use component level media queries
 	 * use a variable/set width for both search and tree? (grid-min-content/auto isn't calculable)
 */
@@ -37,12 +37,11 @@ body {
   font-family: DSEG14;
   font-size: 1.5rem;
   line-height: 1.6;
-  background: url('./bg.webp') center;
+  background: url('./bg.webp') center fixed;
   color: #fff;
   display: grid;
   max-width: 100vw;
   grid-template-columns: 1fr;
-  /* place-content: center; */
   place-items: center;
 }
 
@@ -77,9 +76,7 @@ img {
 }
 
 /* bulk-rule overflow wrap text */
-/* direct add to search-wrap */
-.ow,
-.search-wrap {
+.ow {
   overflow-wrap: break-word;
   word-wrap: break-word;
   word-break: break-all;
@@ -470,3 +467,6 @@ table th {
     justify-content: center;
   }
 }
+
+/* mobile width and mobile landscape-height  */
+/* @media (max-width: 527px), (max-height: 470px) {} */
