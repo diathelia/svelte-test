@@ -14,34 +14,38 @@
   // import flatten from "flat";
   import { onMount } from "svelte";
 
+  // WWTR i made this query a empty string on init?
   export let query = "";
 
   // runs after component is loaded into the DOM - could put like, a lot of code in here
   onMount(async () => {
     createTree(tree);
+    query = query.toLowerCase();
   });
 
   // start matching from 1 meaningful char (accounts for whitespace)
   $: if (query.length > 2) {
+    // console.log(query);
     // get all non-empty branches
-    let branches = document.querySelectorAll(".c1");
-    branches = Array.from(branches).filter(b => b.textContent);
+    // let branches = document.querySelectorAll(".c1");
+    let branches = Array.from(document.querySelectorAll(".c1")).filter(
+      b => b.textContent
+    );
 
     for (const branch of branches) {
-      if (branch.textContent.includes(query.substr(1))) {
+      if (branch.textContent.includes(query.substring(1))) {
         branch.style.visibility = "visible";
-        branch.style.borderBottom = "2px solid var(--primary-color)";
       }
     }
 
     // get all non-empty subbranches
-    let subbranches = document.querySelectorAll(".c2");
-    subbranches = Array.from(subbranches).filter(sb => sb.textContent);
+    let subbranches = Array.from(document.querySelectorAll(".c2")).filter(
+      sb => sb.textContent
+    );
 
     for (const subbranch of subbranches) {
-      if (subbranch.textContent.includes(query.substr(1))) {
+      if (subbranch.textContent.includes(query.substring(1))) {
         subbranch.style.visibility = "visible";
-        subbranch.style.borderLeft = "2px solid var(--primary-color)";
       }
     }
     // if textContent, the previous sibling is the parent branch
@@ -66,8 +70,8 @@
     about: "path",
     web: {
       primer_2027: "https://par-ity.github.io/Primer-2027",
-      platypus: "path",
-      roslyn_health: "path"
+      platypus: "https://diathelia.github.io/Platypus",
+      roslyn_health: "https://diathelia.github.io/Heal_thy"
     },
     video: {
       oh_ivy: "path",
@@ -89,40 +93,50 @@
     let r = 1;
 
     for (const branch in obj) {
-      // console.log(obj[branch], branch);
-
+      // detect a parent branch
       if (typeof obj[branch] == "object") {
+        // add margin-bump to top of parent branch?
+
+        // add content
         document.querySelector(`.c${c}.r${r}`).textContent = branch;
+        document.querySelector(`.c${c}.r${r}`).style.borderBottom =
+          "2px solid var(--primary-color)";
+        // set to column 2 for subbranches loop
+        c = 2;
+        // keep first subbranch on same line
         r--;
 
-        for (let key in obj[branch]) {
-          c = 2;
+        // iterate by key through subbranches
+        for (const subbranch in obj[branch]) {
           r++;
-          // console.log(obj[branch][key]);
-          // console.log(key);
-          document.querySelector(
-            `.c${c}.r${r}`
-          ).innerHTML = `<a href="${obj[branch][key]}">${key}</a>`;
+          // add border
+          document.querySelector(`.c${c}.r${r}`).style.borderLeft =
+            "2px solid var(--primary-color)";
+          // subbranch value may be text or a link
+          let value;
+
+          // detect if value is a link
+          if (obj[branch][subbranch].substring(0, 4) === "http") {
+            // set value to an <a> tag href and use the key as the display text
+            value = `<a href="${obj[branch][subbranch]}">${subbranch}</a>`;
+          } else {
+            // set value to value
+            value = obj[branch][subbranch];
+          }
+
+          // console.log("value", obj[branch][subbranch]);
+          // console.log("key", subbranch);
+
+          document.querySelector(`.c${c}.r${r}`).innerHTML = value;
         }
-        // for (let i = 0; i < Object.keys(obj[branch]).length; i++) {
-        //   c = 2;
-        //   r++;
-        //   console.log();
 
-        //   document.querySelector(`.c${c}.r${r}`).textContent = Object.keys(
-        //     obj[branch]
-        //   )[i];
-        // }
-
-        // add margin-bump to last subbranch of a single parent branch here?
-        // or try style subbranch boundaries better?
-        // or go back to r += 2?
+        // add margin-bump to last subbranch of a single parent branch
+        document.querySelector(`.c2.r${r}`).style.marginBottom = "1rem";
 
         // reset for new branch
         c = 1;
         r++;
       } else {
-        // console.log(obj[branch]);
         document.querySelector(`.c${c}.r${r}`).textContent = branch;
         // reset for new branch
         c = 1;
@@ -136,14 +150,18 @@
   .tree {
     grid-gap: 0;
     grid-template-columns: repeat(2, min-content);
+    background-color: var(--bg-color);
+    padding: 0 0.5rem;
   }
 
   /* branches */
   .tree div {
-    /* visibility: hidden; */
-    background-color: var(--bg-color);
-    border: 2px solid var(--primary-color);
     padding-left: 0.2rem;
+    /* visibility: hidden; */
+  }
+
+  .c1 {
+    padding-right: 1rem;
   }
 </style>
 
@@ -172,6 +190,16 @@
   </div>
 </div>
 
+<!-- // for (let i = 0; i < Object.keys(obj[branch]).length; i++) {
+  //   c = 2;
+  //   r++;
+  //   console.log();
+
+  //   document.querySelector(`.c${c}.r${r}`).textContent = Object.keys(
+  //     obj[branch]
+  //   )[i];
+  // } -->
+
 <!-- html/nav structure options -->
 <!-- json, array, object, grid, table, list, mermaidjs ? -->
 <!-- could generate these grid items by parameterised calls to a component that makes #each html calls -->
@@ -181,13 +209,6 @@
 <!--
   // let branches = Object.keys(tree);
   // console.log(branches);
-
-  // for (branch of branches) {
-  //   // branch css code here
-  //   if (branch.includes(query)) {
-  //     // light up brnach
-  //   }
-  // }
 
   // from https://stackoverflow.com/a/44134784
   // const getObjRows = obj => {
@@ -206,10 +227,4 @@
   // console.log(flatten(tree).length);
 
   // const flatTree = flatten(tree);
-
- // $: if (query) {
-  //   console.log(query[0]);
-  //   if (query[0] !== " ") {
-  //     query = " ";
-  //   }
   // } -->

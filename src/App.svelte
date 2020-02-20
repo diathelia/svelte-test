@@ -1,16 +1,13 @@
 <script>
-  // import Omninav from "./Omninav.svelte";
-  // , { query }
+  // , { query } alternative? theres always dispatch, but im tryna avoid for now just to learn more
   import Search from "./Search.svelte";
   import Tree from "./Tree.svelte";
+  import Spinner from "./Spinner.svelte";
 
   // intermediate query variable to pass from Search --> Omninav --> Tree
-  let queryProp;
+  let intermediaryQuery;
 </script>
 
-<style>
-
-</style>
-
-<Search query="&nbsp;" bind:query={queryProp} />
-<Tree query={queryProp} />
+<Search query="&nbsp;" bind:query={intermediaryQuery} />
+<Tree query={intermediaryQuery} />
+<Spinner />

@@ -8,6 +8,10 @@
   // query is textContent
   export let query;
 
+  // $: if (query) {
+  //   query = query.toLowerCase();
+  // }
+
   // tries to stop select all bug
   let cntrlDown = false;
 
@@ -16,17 +20,20 @@
     e.preventDefault();
   };
 
+  // does this make no sense/ functionalise other stuff
+  // const toggleCntrl = (e) => e.key === 'Control' : cntrlDown = !cntrlDown
+
   // watch from control key
   const queryKeyup = e => {
     if (e.key === "Control") {
       // toggle global var
       cntrlDown = false;
-      // console.log(cntrlDown);
     }
   };
 
   // #cancel special keys
   const queryKeydown = e => {
+    console.log(e.key);
     if (e.key === "Control") {
       // toggle global var
       cntrlDown = true;
@@ -43,7 +50,9 @@
         (e.key === "a" ||
           e.key === "A" ||
           e.key === "Delete" ||
-          e.key === "Backspace"))
+          e.key === "Backspace" ||
+          e.key === "v" ||
+          e.key === "V"))
     ) {
       e.preventDefault(); // will stop event bubbling --> stops key being pressed
     }
@@ -131,7 +140,7 @@
     margin-bottom: 0.08rem;
     background-color: var(--primary-color);
     vertical-align: middle;
-    animation: blink 1s ease-in-out infinite;
+    animation: blink 1.6s ease-in-out infinite;
   }
 
   @keyframes blink {
