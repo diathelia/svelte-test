@@ -26,6 +26,14 @@
   /* --success-color: #28a745; */
 }
 
+::selection {
+  background: #e0ffe0a9;
+}
+/* ::-moz-selection {
+  background: rgb(182, 255, 140);
+} */
+
+/* Resets */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -34,6 +42,7 @@
 
 body {
   /* font-family: 'Roboto', sans-serif; */
+  /* text-transform: lowercase; */
   font-family: DSEG14;
   font-size: 1.5rem;
   line-height: 1.6;
@@ -51,7 +60,7 @@ a {
 }
 
 a:hover {
-  color: #666;
+  color: var(--secondary-color);
 }
 
 ul {
@@ -70,6 +79,7 @@ img {
   padding: 0 2rem;
 }
 
+/* maybe add a @media for this */
 .wrap {
   margin-left: 2rem;
   margin-right: 2rem;
@@ -80,8 +90,8 @@ img {
   overflow-wrap: break-word;
   word-wrap: break-word;
   word-break: break-all;
-  /*   hyphens: auto; */
-  /*   white-space: pre; */
+  /* hyphens: auto; */
+  /* white-space: pre; */
 }
 
 .x-large {
