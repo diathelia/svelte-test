@@ -8,10 +8,6 @@
   // query is textContent
   export let query;
 
-  // $: if (query) {
-  //   query = query.toLowerCase();
-  // }
-
   // tries to stop select all bug
   let cntrlDown = false;
 
@@ -33,7 +29,7 @@
 
   // #cancel special keys
   const queryKeydown = e => {
-    // console.log(e.key);
+    console.log(e.key);
     if (e.key === "Control") {
       // toggle global var
       cntrlDown = true;
