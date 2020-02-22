@@ -14,6 +14,10 @@
   // import flatten from "flat";
   import { onMount } from "svelte";
 
+  // get site tree (pre-parsed)
+  import tree from "../public/tree.json";
+  console.log(tree);
+
   // explicitly make this an empty string so
   // the label function query.length doesn't
   // error out over an undefined query
@@ -30,7 +34,6 @@
     // 3. use numRows to generate the empty tree in the DOM
     // 4. run createTree() to add correct content to DOM tree
     createTree(tree);
-    // query = query.toLowerCase();
 
     // get all non-empty branches
     branches = Array.from(document.querySelectorAll(".c1")).filter(
@@ -48,10 +51,10 @@
     // console.log(query);
     // sanitise input for branch matching
     query = query.substring(1).toLowerCase();
+
     for (const branch of branches) {
       if (branch.textContent.includes(query)) {
         styleBranch(branch, null, 1);
-        // branch.style.opacity = 1;
       }
     }
 
@@ -69,13 +72,13 @@
             // if crawl is false then this is the first do loop iteration
             if (crawl) {
               // add styling to not-first-not-query-target-subbranch
-              styleBranch(subbranches[ii], "Left", 0.5);
+              styleBranch(subbranches[ii], "Left", 0.3);
             } else {
               // add styling to subbranch target
               styleBranch(subbranches[ii], "Left", 1);
             }
 
-            console.log(ii);
+            // console.log(ii);
             // iterate up one subbranch
             ii--;
 
@@ -84,30 +87,25 @@
 
             // if textContent, the previous sibling is the parent branch
           } while (!subbranches[ii].previousElementSibling.textContent);
-        } else {
-          console.log("skipped while loop --> target sb is first sb");
         }
+        // else {
+        //   console.log("skipped while loop --> target sb is first sb");
+        // }
 
         // check if ii is on first subbranch
         // either by while loop iteration or
         // if first subbranch = query target
         if (subbranches[ii].previousElementSibling.textContent) {
-          console.log(
-            "first subbranch of:",
-            subbranches[ii].previousElementSibling.textContent
-          );
-
-          // first add styling to first subbranch
+          // add styling to first subbranch
           if (crawl) {
-            console.log("crawl = true");
             // then first subbranch is not the query target
-            styleBranch(subbranches[ii], "Left", 0.5);
+            styleBranch(subbranches[ii], "Left", 0.3);
           } else {
             // crawl was skipped and first subbranch is query target
             styleBranch(subbranch, "Left", 1);
           }
-          // then style parent branch
-          styleBranch(subbranches[ii].previousElementSibling, "Bottom", 0.5);
+          // style parent branch
+          styleBranch(subbranches[ii].previousElementSibling, "Bottom", 0.3);
         }
       }
     }
@@ -122,29 +120,36 @@
     Object.assign(branch.style, styleObj);
   };
 
+  // console.log(treeJSON);
+  // debugger;
+  // let tree = JSON.parse(treeJSON);
+  // console.log(tree);
+
   // add to videos: tidbits, PAVEMENT_2017_AH18, ...
   // 'source' could be called 'root', 'home' ...
   // placeholder tree object
   // translate into generated object-only JSON string
   // only use lower-case to sync with lowercase-sanitised input
-  let tree = {
-    home: "path",
-    about: "path",
-    web: {
-      primer_2027: "https://par-ity.github.io/Primer-2027",
-      platypus: "https://diathelia.github.io/Platypus",
-      roslyn_health: "https://diathelia.github.io/heal_thy"
-    },
-    video: {
-      oh_ivy: "https://www.youtube.com/watch?v=RJpgCb-XNIU",
-      procedural_disco: "https://www.youtube.com/watch?v=88DUzNXNxbs",
-      nctrnl: "https://www.youtube.com/watch?v=6Fxl4-jEOes"
-    },
-    loading: {
-      spinner_1: "~*x+-+x*~",
-      spinner_2: "|/-|/-|/-|"
-    }
-  };
+  // keys: display names
+  // values: paths to assets
+  // let tree = {
+  //   home: "path",
+  //   about: "path",
+  //   web: {
+  //     primer_2027: "https://par-ity.github.io/Primer-2027",
+  //     platypus: "https://diathelia.github.io/Platypus",
+  //     roslyn_health: "https://diathelia.github.io/heal_thy"
+  //   },
+  //   video: {
+  //     oh_ivy: "https://www.youtube.com/watch?v=RJpgCb-XNIU",
+  //     procedural_disco: "https://www.youtube.com/watch?v=88DUzNXNxbs",
+  //     nctrnl: "https://www.youtube.com/watch?v=6Fxl4-jEOes"
+  //   },
+  //   loading: {
+  //     spinner_1: "~*x+-+x*~",
+  //     spinner_2: "|/-|/-|/-|"
+  //   }
+  // };
 
   // 1. set 'branch' to col-1 once, no newline
   // 2. for subbranch length, add elm to col-2, then newline
@@ -217,8 +222,9 @@
   /* branches */
   .tree div {
     padding-left: 0.2rem;
-    /* visibility: hidden; */
     opacity: 0.1;
+    border: 2px solid rgba(94, 255, 0, 0);
+    transition: all 0.8s ease-in-out;
   }
 
   .c1 {

@@ -29,7 +29,7 @@
 
   // #cancel special keys
   const queryKeydown = e => {
-    console.log(e.key);
+    // console.log(e.key);
     if (e.key === "Control") {
       // toggle global var
       cntrlDown = true;
@@ -80,7 +80,7 @@
       // Set cursor on focus
       tag.focus();
     } else {
-      console.log(tag.textContent.length);
+      console.log("error, text length =", tag.textContent.length);
       // throw `err: ${tag.textContent.length}`;
     }
   };
@@ -118,7 +118,6 @@
   .query {
     outline: none;
     caret-color: transparent;
-    /* user-select: none; */
   }
 
   .query::before {
