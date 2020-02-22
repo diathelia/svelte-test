@@ -14,72 +14,134 @@
   // import flatten from "flat";
   import { onMount } from "svelte";
 
-  // WWTR i made this query a empty string on init?
+  // explicitly make this an empty string so
+  // the label function query.length doesn't
+  // error out over an undefined query
   export let query = "";
 
+  let branches, subbranches;
+
   // runs after component is loaded into the DOM - could put like, a lot of code in here
+  // 1. functionalise code
+  // 2. call sensible functions from within onMount (ie not event listeners or globals etc)
   onMount(async () => {
+    // 1. fetch json tree file
+    // 2. calculate numRows from json.length and my equation
+    // 3. use numRows to generate the empty tree in the DOM
+    // 4. run createTree() to add correct content to DOM tree
     createTree(tree);
-    query = query.toLowerCase();
+    // query = query.toLowerCase();
+
+    // get all non-empty branches
+    branches = Array.from(document.querySelectorAll(".c1")).filter(
+      b => b.textContent
+    );
+
+    // get all non-empty subbranches
+    subbranches = Array.from(document.querySelectorAll(".c2")).filter(
+      sb => sb.textContent
+    );
   });
 
   // start matching from 1 meaningful char (accounts for whitespace)
   $: if (query.length > 2) {
     // console.log(query);
-    // get all non-empty branches
-    // let branches = document.querySelectorAll(".c1");
-    let branches = Array.from(document.querySelectorAll(".c1")).filter(
-      b => b.textContent
-    );
-
+    // sanitise input for branch matching
+    query = query.substring(1).toLowerCase();
     for (const branch of branches) {
-      if (branch.textContent.includes(query.substring(1))) {
-        branch.style.visibility = "visible";
+      if (branch.textContent.includes(query)) {
+        styleBranch(branch, null, 1);
+        // branch.style.opacity = 1;
       }
     }
 
-    // get all non-empty subbranches
-    let subbranches = Array.from(document.querySelectorAll(".c2")).filter(
-      sb => sb.textContent
-    );
+    for (const [i, subbranch] of subbranches.entries()) {
+      if (subbranch.textContent.includes(query)) {
+        // mutable copy of index to crawl up subbranches
+        let ii = i;
 
-    for (const subbranch of subbranches) {
-      if (subbranch.textContent.includes(query.substring(1))) {
-        subbranch.style.visibility = "visible";
+        let crawl = false;
+
+        // only run subbranch crawl if not currently on first subbranch
+        if (!subbranch.previousElementSibling.textContent) {
+          // while the cell to my left is empty, iterate up subbranches
+          do {
+            // if crawl is false then this is the first do loop iteration
+            if (crawl) {
+              // add styling to not-first-not-query-target-subbranch
+              styleBranch(subbranches[ii], "Left", 0.5);
+            } else {
+              // add styling to subbranch target
+              styleBranch(subbranches[ii], "Left", 1);
+            }
+
+            console.log(ii);
+            // iterate up one subbranch
+            ii--;
+
+            // set flag to true
+            crawl = true;
+
+            // if textContent, the previous sibling is the parent branch
+          } while (!subbranches[ii].previousElementSibling.textContent);
+        } else {
+          console.log("skipped while loop --> target sb is first sb");
+        }
+
+        // check if ii is on first subbranch
+        // either by while loop iteration or
+        // if first subbranch = query target
+        if (subbranches[ii].previousElementSibling.textContent) {
+          console.log(
+            "first subbranch of:",
+            subbranches[ii].previousElementSibling.textContent
+          );
+
+          // first add styling to first subbranch
+          if (crawl) {
+            console.log("crawl = true");
+            // then first subbranch is not the query target
+            styleBranch(subbranches[ii], "Left", 0.5);
+          } else {
+            // crawl was skipped and first subbranch is query target
+            styleBranch(subbranch, "Left", 1);
+          }
+          // then style parent branch
+          styleBranch(subbranches[ii].previousElementSibling, "Bottom", 0.5);
+        }
       }
     }
-    // if textContent, the previous sibling is the parent branch
-    // assume same parent branch for all subbranches that have no textContent prev siblings
-    // first c2 with text will also have a parent branch as prev sibling
-
-    // if (subbranches[0].previousElementSibling.textContent) {
-    // light up the parent node
-    // console.log(
-    //   "parent branch:",
-    //   subbranches[0].previousElementSibling.textContent
-    // );
-    // }
   }
+
+  const styleBranch = (branch, edge, opacity) => {
+    // construct object from params as JSON
+    let styleObj = JSON.parse(
+      `{ "opacity": ${opacity}, "border${edge}": "2px solid var(--primary-color)" }`
+    );
+    // add styles (without overwriting)
+    Object.assign(branch.style, styleObj);
+  };
 
   // add to videos: tidbits, PAVEMENT_2017_AH18, ...
   // 'source' could be called 'root', 'home' ...
   // placeholder tree object
   // translate into generated object-only JSON string
+  // only use lower-case to sync with lowercase-sanitised input
   let tree = {
     home: "path",
     about: "path",
     web: {
       primer_2027: "https://par-ity.github.io/Primer-2027",
       platypus: "https://diathelia.github.io/Platypus",
-      roslyn_health: "https://diathelia.github.io/Heal_thy"
+      roslyn_health: "https://diathelia.github.io/heal_thy"
     },
     video: {
-      oh_ivy: "path",
-      procedural_disco: "path",
-      NCTRNL: "path"
+      oh_ivy: "https://www.youtube.com/watch?v=RJpgCb-XNIU",
+      procedural_disco: "https://www.youtube.com/watch?v=88DUzNXNxbs",
+      nctrnl: "https://www.youtube.com/watch?v=6Fxl4-jEOes"
     },
     loading: {
-      spinner_1: "~*x+-+x*~*x+-",
+      spinner_1: "~*x+-+x*~",
       spinner_2: "|/-|/-|/-|"
     }
   };
@@ -95,12 +157,10 @@
     for (const branch in obj) {
       // detect a parent branch
       if (typeof obj[branch] == "object") {
-        // add margin-bump to top of parent branch?
-
         // add content
         document.querySelector(`.c${c}.r${r}`).textContent = branch;
-        document.querySelector(`.c${c}.r${r}`).style.borderBottom =
-          "2px solid var(--primary-color)";
+        // document.querySelector(`.c${c}.r${r}`).style.borderBottom =
+        //   "2px solid var(--primary-color)";
         // set to column 2 for subbranches loop
         c = 2;
         // keep first subbranch on same line
@@ -110,15 +170,15 @@
         for (const subbranch in obj[branch]) {
           r++;
           // add border
-          document.querySelector(`.c${c}.r${r}`).style.borderLeft =
-            "2px solid var(--primary-color)";
+          // document.querySelector(`.c${c}.r${r}`).style.borderLeft =
+          //   "2px solid var(--primary-color)";
           // subbranch value may be text or a link
           let value;
 
           // detect if value is a link
           if (obj[branch][subbranch].substring(0, 4) === "http") {
             // set value to an <a> tag href and use the key as the display text
-            value = `<a href="${obj[branch][subbranch]}">${subbranch}</a>`;
+            value = `<a target="_blank" href="${obj[branch][subbranch]}">${subbranch}</a>`;
           } else {
             // set value to value
             value = obj[branch][subbranch];
@@ -130,7 +190,7 @@
           document.querySelector(`.c${c}.r${r}`).innerHTML = value;
         }
 
-        // add margin-bump to last subbranch of a single parent branch
+        // add margin-bump to last subbranch of current branch
         document.querySelector(`.c2.r${r}`).style.marginBottom = "1rem";
 
         // reset for new branch
@@ -158,6 +218,7 @@
   .tree div {
     padding-left: 0.2rem;
     /* visibility: hidden; */
+    opacity: 0.1;
   }
 
   .c1 {
@@ -189,6 +250,12 @@
     <div class="c2 r10" />
   </div>
 </div>
+
+<!-- console.log( subbranches[ii].previousElementSibling.previousElementSibling );
+this attempt to stop while looping over aleady visible subbranches just breaks
+the loop when it should run... i think it is targeting the wrong elm... &&
+subbranch.previousElementSibling.previousElementSibling.style .visibility ===
+"hidden" question.. do i want to stop looping over already lit-up -->
 
 <!-- // for (let i = 0; i < Object.keys(obj[branch]).length; i++) {
   //   c = 2;
