@@ -9,7 +9,7 @@
   let intermediaryQuery;
 </script>
 
+<Particles />
 <Search query="&nbsp;" bind:query={intermediaryQuery} />
 <Tree query={intermediaryQuery} />
 <Spinner />
-<Particles />

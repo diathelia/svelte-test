@@ -1,5 +1,11 @@
 <script>
   import { onMount } from "svelte";
+
+  onMount(async () => {
+    // on Search component load, set focus on search bar
+    document.querySelector(".query").focus();
+  });
+
   // import { createEventDispatcher } from "svelte";
   // const dispatch = createEventDispatcher();
   // const func = () => dispatch("eventname", var/ref);
@@ -98,12 +104,12 @@
   }
 
   .search {
-    background-color: rgba(0, 0, 0, 0.69);
     color: var(--primary-color);
     display: inline;
   }
 
   .search-wrap {
+    background-color: rgba(0, 0, 0, 0.69);
     width: 100%;
     /* approx width of .tree (will change with string lengths tho smh) */
     max-width: 28.5rem;

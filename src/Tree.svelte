@@ -57,7 +57,7 @@
 
     for (const branch of branches) {
       if (branch.textContent.includes(query)) {
-        styleBranch(branch, null, 1);
+        styleBranch(branch, "", 1);
       }
     }
 
@@ -112,12 +112,30 @@
         }
       }
     }
+  } else if (branches && subbranches) {
+    // query is 0 or 1 characters
+    for (const branch of branches) {
+      styleBranch(branch, "", 0.1);
+    }
+    for (const subbranch of subbranches) {
+      styleBranch(subbranch, "", 0.1);
+    }
   }
 
   const styleBranch = (branch, edge, opacity) => {
+    // assume branch is being de-selected:
+    // set border value to transparent
+    let border = "2px solid rgba(94, 255, 0, 0)";
+
+    // if edge is truthy, branch is being selected:
+    // set border edge value to primary greenpl
+    if (edge) {
+      border = "2px solid var(--primary-color)";
+    }
+
     // construct object from params as JSON
     let styleObj = JSON.parse(
-      `{ "opacity": ${opacity}, "border${edge}": "2px solid var(--primary-color)" }`
+      `{ "opacity": ${opacity}, "border${edge}": "${border}" }`
     );
     // add styles (without overwriting)
     Object.assign(branch.style, styleObj);
