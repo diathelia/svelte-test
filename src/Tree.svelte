@@ -14,9 +14,13 @@
   // import flatten from "flat";
   import { onMount } from "svelte";
 
+  // add to videos: tidbits, PAVEMENT_2017_AH18, ...
+  // only use lower-case to sync with lowercase-sanitised input
+  // keys: display names
+  // values: paths to assets
   // get site tree (pre-parsed)
   import tree from "../public/tree.json";
-  console.log(tree);
+  // console.log(tree);
 
   // explicitly make this an empty string so
   // the label function query.length doesn't
@@ -33,7 +37,7 @@
     // 2. calculate numRows from json.length and my equation
     // 3. use numRows to generate the empty tree in the DOM
     // 4. run createTree() to add correct content to DOM tree
-    createTree(tree);
+    await createTree(tree);
 
     // get all non-empty branches
     branches = Array.from(document.querySelectorAll(".c1")).filter(
@@ -48,7 +52,6 @@
 
   // start matching from 1 meaningful char (accounts for whitespace)
   $: if (query.length > 2) {
-    // console.log(query);
     // sanitise input for branch matching
     query = query.substring(1).toLowerCase();
 
@@ -119,37 +122,6 @@
     // add styles (without overwriting)
     Object.assign(branch.style, styleObj);
   };
-
-  // console.log(treeJSON);
-  // debugger;
-  // let tree = JSON.parse(treeJSON);
-  // console.log(tree);
-
-  // add to videos: tidbits, PAVEMENT_2017_AH18, ...
-  // 'source' could be called 'root', 'home' ...
-  // placeholder tree object
-  // translate into generated object-only JSON string
-  // only use lower-case to sync with lowercase-sanitised input
-  // keys: display names
-  // values: paths to assets
-  // let tree = {
-  //   home: "path",
-  //   about: "path",
-  //   web: {
-  //     primer_2027: "https://par-ity.github.io/Primer-2027",
-  //     platypus: "https://diathelia.github.io/Platypus",
-  //     roslyn_health: "https://diathelia.github.io/heal_thy"
-  //   },
-  //   video: {
-  //     oh_ivy: "https://www.youtube.com/watch?v=RJpgCb-XNIU",
-  //     procedural_disco: "https://www.youtube.com/watch?v=88DUzNXNxbs",
-  //     nctrnl: "https://www.youtube.com/watch?v=6Fxl4-jEOes"
-  //   },
-  //   loading: {
-  //     spinner_1: "~*x+-+x*~",
-  //     spinner_2: "|/-|/-|/-|"
-  //   }
-  // };
 
   // 1. set 'branch' to col-1 once, no newline
   // 2. for subbranch length, add elm to col-2, then newline

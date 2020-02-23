@@ -3,6 +3,7 @@
   import Search from "./Search.svelte";
   import Tree from "./Tree.svelte";
   import Spinner from "./Spinner.svelte";
+  import Particles from "./Particles.svelte";
 
   // intermediate query variable to pass from Search --> Omninav --> Tree
   let intermediaryQuery;
@@ -11,3 +12,4 @@
 <Search query="&nbsp;" bind:query={intermediaryQuery} />
 <Tree query={intermediaryQuery} />
 <Spinner />
+<Particles />
