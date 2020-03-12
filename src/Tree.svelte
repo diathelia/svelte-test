@@ -4,27 +4,29 @@
 
   // add to videos: tidbits, PAVEMENT_2017_AH18, ...
   // only use lower-case to sync with lowercase-sanitised input
-  // keys: display names
-  // values: paths to assets
+
   // get site tree (pre-parsed)
   import tree from "../public/tree.json";
 
-  // explicitly make this an empty string so
-  // the label function query.length doesn't
-  // error out over an undefined query
+  // explicitly make this an empty string so the label function
+  // query.length doesn't error out over an undefined query
   export let query = "";
 
-  let branches, subbranches, parentbranches, numrows;
+  // filtered arrays of DOM nodes used for wiping styles
+  let branches, subbranches;
+
+  // global for key navigation of tree
+  let currentbranch;
 
   // runs after component is loaded into the DOM - could put like, a lot of code in here
   // 1. functionalise code
-  // 2. call sensible functions from within onMount (ie not event listeners or globals etc)
+  // 2. call functions from onMount (but not event listeners or globals etc)
   onMount(async () => {
-    // add content procedurally based on to DOM tree
-    await createTree(tree);
+    // build DOM grid
+    await createGrid(tree);
 
-    // can now access tree sub-structures (via indexes) and
-    // sub node position in tree and DOM with one referent
+    // build tree onto DOM grid
+    await createTree(tree);
 
     // get all non-empty branches
     branches = Array.from(document.querySelectorAll(".c1")).filter(
@@ -35,9 +37,6 @@
     subbranches = Array.from(document.querySelectorAll(".c2")).filter(
       sb => sb.textContent
     );
-
-    // less complex parentbranch list (has no blanks to filter)
-    // parentbranches = document.querySelectorAll(".pb");
   });
 
   // start matching from 1 meaningful char (accounts for whitespace)
@@ -47,45 +46,64 @@
     query = query.substring(1).toLowerCase();
 
     // loop through branches
-    for (const b in tree) {
+    for (const b of tree) {
       // if branch includes query, style branch
-      if (b.includes(query)) {
-        styleBranch(branch, "", 1);
+      if (b[0].includes(query)) {
+        if (typeof b[1] === "object") {
+          styleBranch(b[2], "Bottom", 1);
+        } else {
+          styleBranch(b[2], "", 1);
+        }
       }
+
       // if parent branch
-      if (typeof tree[b] === "object") {
+      if (typeof b[1] === "object") {
         // if query match, set this flag to style preceding subbranches
         let crawl = false;
 
         // reverse-loop through parents subbranches
-        for (let i = tree[b].length - 1; i >= 0; i--) {
-          if (tree[b][i][0].includes(query)) {
-            // subbranch display text includes query
+        for (let i = b[1].length - 1; i >= 0; i--) {
+          // if subbranch display text includes query
+          if (b[1][i][0].includes(query)) {
+            // set query match subbranch to currentbranch
+            currentbranch = b[1][i][2];
+
             if (i !== 0) {
               // query-match is a non-first-subbranch
+
+              // set flag to style in-between subbranches
               crawl = true;
-              styleBranch(tree[b][i][2], "Left", 1);
+
+              setTimeout(() => {
+                styleBranch(b[1][i][2], "Left", 1);
+              }, 300);
             } else {
               // query match is first-subbranch
-              styleBranch(tree[b][i][2], "Bottom", 1);
-              styleBranch(tree[b][i][2].previousElementSibling, "Bottom", 0.3);
+              setTimeout(() => {
+                styleBranch(b[1][i][2], "Bottom", 1);
+                styleBranch(b[1][i][2].previousElementSibling, "Bottom", 0.3);
+              }, 300);
             }
-            styleBranch(tree[b][i][2], "Bottom", 1);
+            setTimeout(() => {
+              styleBranch(b[1][i][2], "Bottom", 1);
+            }, 300);
           } else if (crawl) {
-            // query matched a non-first-subbranch above sb[i]
+            // then previous loop query matched a non-first-subbranch above sb[i]
             if (i === 0) {
               // style first-subbranch and parent branch
-              styleBranch(tree[b][i][2], "", 0.3);
-              styleBranch(tree[b][i][2].previousElementSibling, "Bottom", 0.3);
+              // styleBranch(b[1][i][2], "", 0.3);
+              styleBranch(b[1][i][2].previousElementSibling, "Bottom", 0.3);
             } else {
               // style preceding non-first-subbranch
-              styleBranch(tree[b][i][2], "Left", 0.3);
+              setTimeout(() => {
+                styleBranch(b[1][i][2], "Left", 0.3);
+              }, 50);
             }
           }
         }
       }
     }
-
+    // try design out these style-canceling loops by using class toggles?
     // end of subbranches loop
   } else if (branches && subbranches) {
     // query is 0 or 1 characters --> reset all styles
@@ -106,33 +124,39 @@
     }
   }
 
-  const createTree = obj => {
+  // build DOM tree from a nested array
+  const createTree = array => {
     // counters for columns and rows
     // counter var is unnecessary until sub-sub-branches occur
     // let c = 1;
     let r = 1;
-    // note: c and r are true referents to the grid....[useful??]
 
-    for (const branch in obj) {
+    for (const branch of array) {
+      // save branch DOM node
+      const b = document.querySelector(`.c1.r${r}`);
+
+      // add ref to branch DOM node back into tree.json
+      branch.push(b);
+
       // detect parent branch
-      if (typeof obj[branch] == "object") {
+      if (typeof branch[1] == "object") {
         // add parent branch name
-        document.querySelector(`.c1.r${r}`).textContent = branch;
-        // add parent branch class
-        document.querySelector(`.c1.r${r}`).classList.add("pb");
+        b.textContent = branch[0];
 
         // set to column 2 for subbranches loop
         // c = 2;
 
-        for (const subbranch of obj[branch]) {
+        for (const subbranch of branch[1]) {
           // console.log("key", subbranch[0]);
           // console.log("value", subbranch[1]);
 
           // save subbranch DOM node
-          let sb = document.querySelector(`.c2.r${r}`);
+          const sb = document.querySelector(`.c2.r${r}`);
 
-          // add ref to new subbranch DOM node back into tree.json
+          // add ref to subbranch DOM node back into tree.json
           subbranch.push(sb);
+
+          // console.log(subbranch);
 
           // detect if subbranch display value is text or a link and assign
           sb.innerHTML = detectLink(subbranch);
@@ -151,19 +175,19 @@
         // could shrink the borderline to just the width of the text
         // it worked! should this just be generally applied? can copypasta
         // the @supports CSS from heal_thy
-        document.querySelector(`.c2.r${r}`).style.width = "fit-content";
+        // document.querySelector(`.c2.r${r}`).style.width = "fit-content";
         // reset for new branch
         // c = 1;
         r++;
       } else {
-        document.querySelector(`.c1.r${r}`).textContent = branch;
+        document.querySelector(`.c1.r${r}`).textContent = branch[0];
         // reset for new branch
         // c = 1;
         r++;
       }
     }
     // r - 1 = total grid rows --> save to global
-    numrows = r - 1;
+    // numrows = r - 1;
     console.log(tree);
   };
 
@@ -205,6 +229,48 @@
     }
   };
   // on:mouseover={e.target.style.color='var(--primary-color)!important'}
+
+  // (assume) on first key detection current = .c1.r1
+  // (unless) a query-match has been made
+  // (or) multiple query-matches have been made
+
+  // handle tree key navigation
+  document.addEventListener("keydown", e => {
+    if (!currentbranch) {
+      // no current query-match, set current to .c1.r1
+      currentbranch = branches[0];
+    }
+    // theoretically could now use DOM classList to navigate...
+    // eventually, will need to turn entire json tree into arrays sigh
+    // otherwise dealing with c1 branches is going to be a huge pain
+    switch (e.key) {
+      case "ArrowLeft":
+        console.log(e.key);
+        styleBranch(currentbranch, "", "1");
+        break;
+      case "ArrowRight":
+        console.log(e.key);
+        break;
+      case "ArrowUp":
+        console.log(e.key);
+        break;
+      case "ArrowDown":
+        console.log(e.key);
+        break;
+    }
+  });
+
+  // build DOM grid from a nested array
+  const createGrid = array => {
+    const grid = document.querySelector(".tree");
+    for (let i = 1; i <= array.flat().length; i++) {
+      let a = document.createElement("div");
+      let b = document.createElement("div");
+      a.className = `c1 r${i}`;
+      b.className = `c2 r${i}`;
+      grid.append(a, b);
+    }
+  };
 </script>
 
 <style>
@@ -214,36 +280,26 @@
     background-color: var(--bg-color);
     padding: 0 0.5rem;
   }
-
-  /* all branches */
-  .tree div {
-    padding-left: 0.2rem;
-    opacity: 0.1;
-    border: 2px solid rgba(94, 255, 0, 0);
-    transition: all 0.8s ease-in-out;
-  }
-
-  /* subbranches */
-  .c2 {
-    /* experiment */
-    width: fit-content;
-  }
-
-  .tree div:hover
-  /* ,.link  */
- {
-    color: var(--primary-color) !important;
-  }
-
-  .c1 {
-    padding-right: 1rem;
-  }
+  /* moved tree branch styles from here into global.css to avoid getting compiled out */
 </style>
 
 <div class="wrap">
-  <!-- generate this grid using numrows calc (can't use global) -->
-  <div class="tree grid-2">
-    <div class="c1 r1" />
+  <div class="tree grid-2" />
+  <!-- generated by buildTree() -->
+</div>
+
+<!-- /*
+    are the css styles for tree branches getting compiled out?
+    now that the DOM branches are generated, style's arent
+    getting applied from the svelte css block...
+
+    how can i time the activation or delivery of these css rules?
+    bung em into global.css? good test of compiled out theory
+
+    result: it worked, moving to global returned functionality
+  */ -->
+
+<!-- <div class="c1 r1" />
     <div class="c2 r1" />
     <div class="c1 r2" />
     <div class="c2 r2" />
@@ -262,14 +318,18 @@
     <div class="c1 r9" />
     <div class="c2 r9" />
     <div class="c1 r10" />
-    <div class="c2 r10" />
-  </div>
-</div>
+    <div class="c2 r10" /> -->
 
 <!-- ------------------------------------------------------------- -->
 <!-- CODE I HAD TO map(tree.json <==> DOM grid) THAT WERE 2MESSY:  -->
 <!-- ------------------------------------------------------------- -->
 <!-- 
+    { can now access tree sub-structures (via indexes) and
+      sub node position in tree and DOM with one referent }
+
+    // less complex parentbranch list (has no blanks to filter)
+    // let parentbranches = document.querySelectorAll(".pb");
+
       // for (const branch of branches) {
       // if the branch-text includes the query as a whole string, style branch
       // if (branch.textContent.includes(query)) {
