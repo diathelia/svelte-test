@@ -26,12 +26,11 @@
   /* --success-color: #28a745; */
 }
 
-::selection {
+/* why did this break in Iridium? */
+::selection,
+::-moz-selection {
   background: #e0ffe0a9;
 }
-/* ::-moz-selection {
-  background: rgb(182, 255, 140);
-} */
 
 /* Resets */
 * {
