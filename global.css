@@ -15,6 +15,47 @@
   src: url('./DSEG14.woff2');
 }
 
+/* *** START_TEST *** */
+
+/* when these rules are left in Tree.svelte, they are 
+   ignored or compiled out, due to their DOM referents
+   being generated in js. presumably the compiler reads
+   the base css, then executes the script, modifying
+   whatever base css there is. in this case, the base css
+   is rendered as redundant before its referents are reified
+*/
+
+/* all branches */
+.tree div {
+  padding-left: 0.2rem;
+  opacity: 0.1;
+  border: 2px solid rgba(94, 255, 0, 0);
+  transition: all 0.8s ease-in-out;
+}
+
+/* branches */
+.c1 {
+  padding-right: 1rem;
+}
+
+/* fit-content does not work for IE/Edge: https://caniuse.com/#search=fit-content */
+@supports (width: fit-content) or (width: -webkit-fit-content) or (width: -moz-fit-content) {
+  /* subbranches */
+  .c2 {
+    width: fit-content;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+  }
+}
+
+.tree div:hover
+/* ,.link  */
+ {
+  color: var(--primary-color) !important;
+}
+
+/* *** END_TEST *** */
+
 /* Global Styles */
 :root {
   --primary-color: rgb(94, 255, 0);
