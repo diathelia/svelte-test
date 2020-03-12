@@ -1,0 +1,18 @@
+{
+  "home": "path",
+  "about": "path",
+  "web": [
+    ["primer_2027", "https://par-ity.github.io/Primer-2027"],
+    ["platypus", "https://diathelia.github.io/Platypus"],
+    ["roslyn_health", "https://diathelia.github.io/heal_thy"]
+  ],
+  "video": [
+    ["oh_ivy", "https://www.youtube.com/watch?v=RJpgCb-XNIU"],
+    ["procedural_disco", "https://www.youtube.com/watch?[v=88DUzNXNxbs"],
+    ["nctrnl", "https://www.youtube.com/watch?v=6Fxl4-jEOes"]
+  ],
+  "loading": [
+    ["spinner_1", "~*x+-+x*~"],
+    ["spinner_2", "|/-|/-|/-|"]
+  ]
+}

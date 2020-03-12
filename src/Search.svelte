@@ -4,6 +4,8 @@
   onMount(async () => {
     // on Search component load, set focus on search bar
     document.querySelector(".query").focus();
+
+    // console.log(document.querySelector(".search-wrap"));
   });
 
   // import { createEventDispatcher } from "svelte";
@@ -124,6 +126,7 @@
   .query {
     outline: none;
     caret-color: transparent;
+    /* vertical-align: middle; */
   }
 
   .query::before {
@@ -138,7 +141,8 @@
     display: inline-block;
     width: 0.8rem;
     height: 1.7rem;
-    margin-bottom: 0.08rem;
+    margin-bottom: 0.15rem;
+    margin-left: 0.15rem;
     background-color: var(--primary-color);
     vertical-align: middle;
     animation: blink 1.6s ease-in-out infinite;

@@ -1,16 +1,4 @@
 <script>
-  /* 
-  TO-ADD: a clear search function maybe after selecting a link or clicking
-  
-  IDEA:
-  after every subbranch ends and its time to switch back to col-1, add an extra row
-  how does adding an extra row per parent branch? it simplifies our equation:
-
-  (numBranches + numSubbranches) - numParentBranches = numRows
-  becomes
-  numBranches + numSubbranches = numRows
-*/
-
   // import flatten from "flat";
   import { onMount } from "svelte";
 
@@ -20,117 +8,176 @@
   // values: paths to assets
   // get site tree (pre-parsed)
   import tree from "../public/tree.json";
-  // console.log(tree);
 
   // explicitly make this an empty string so
   // the label function query.length doesn't
   // error out over an undefined query
   export let query = "";
 
-  let branches, subbranches;
+  let branches, subbranches, parentbranches, numrows;
 
   // runs after component is loaded into the DOM - could put like, a lot of code in here
   // 1. functionalise code
   // 2. call sensible functions from within onMount (ie not event listeners or globals etc)
   onMount(async () => {
-    // 1. fetch json tree file
-    // 2. calculate numRows from json.length and my equation
-    // 3. use numRows to generate the empty tree in the DOM
-    // 4. run createTree() to add correct content to DOM tree
+    // add content procedurally based on to DOM tree
     await createTree(tree);
+
+    // can now access tree sub-structures (via indexes) and
+    // sub node position in tree and DOM with one referent
 
     // get all non-empty branches
     branches = Array.from(document.querySelectorAll(".c1")).filter(
       b => b.textContent
     );
 
-    // get all non-empty subbranches
+    // get all non-empty subbranches (now unneeded due to better mapping)
     subbranches = Array.from(document.querySelectorAll(".c2")).filter(
       sb => sb.textContent
     );
+
+    // less complex parentbranch list (has no blanks to filter)
+    // parentbranches = document.querySelectorAll(".pb");
   });
 
   // start matching from 1 meaningful char (accounts for whitespace)
+  // is there another thing to label-listen for...
   $: if (query.length > 2) {
     // sanitise input for branch matching
     query = query.substring(1).toLowerCase();
 
-    for (const branch of branches) {
-      if (branch.textContent.includes(query)) {
+    // loop through branches
+    for (const b in tree) {
+      // if branch includes query, style branch
+      if (b.includes(query)) {
         styleBranch(branch, "", 1);
       }
-    }
-
-    for (const [i, subbranch] of subbranches.entries()) {
-      if (subbranch.textContent.includes(query)) {
-        // mutable copy of index to crawl up subbranches
-        let ii = i;
-
+      // if parent branch
+      if (typeof tree[b] === "object") {
+        // if query match, set this flag to style preceding subbranches
         let crawl = false;
 
-        // only run subbranch crawl if not currently on first subbranch
-        if (!subbranch.previousElementSibling.textContent) {
-          // while the cell to my left is empty, iterate up subbranches
-          do {
-            // if crawl is false then this is the first do loop iteration
-            if (crawl) {
-              // add styling to not-first-not-query-target-subbranch
-              styleBranch(subbranches[ii], "Left", 0.3);
+        // reverse-loop through parents subbranches
+        for (let i = tree[b].length - 1; i >= 0; i--) {
+          if (tree[b][i][0].includes(query)) {
+            // subbranch display text includes query
+            if (i !== 0) {
+              // query-match is a non-first-subbranch
+              crawl = true;
+              styleBranch(tree[b][i][2], "Left", 1);
             } else {
-              // add styling to subbranch target
-              styleBranch(subbranches[ii], "Left", 1);
+              // query match is first-subbranch
+              styleBranch(tree[b][i][2], "Bottom", 1);
+              styleBranch(tree[b][i][2].previousElementSibling, "Bottom", 0.3);
             }
-
-            // console.log(ii);
-            // iterate up one subbranch
-            ii--;
-
-            // set flag to true
-            crawl = true;
-
-            // if textContent, the previous sibling is the parent branch
-          } while (!subbranches[ii].previousElementSibling.textContent);
-        }
-        // else {
-        //   console.log("skipped while loop --> target sb is first sb");
-        // }
-
-        // check if ii is on first subbranch
-        // either by while loop iteration or
-        // if first subbranch = query target
-        if (subbranches[ii].previousElementSibling.textContent) {
-          // add styling to first subbranch
-          if (crawl) {
-            // then first subbranch is not the query target
-            styleBranch(subbranches[ii], "Left", 0.3);
-          } else {
-            // crawl was skipped and first subbranch is query target
-            styleBranch(subbranch, "Left", 1);
+            styleBranch(tree[b][i][2], "Bottom", 1);
+          } else if (crawl) {
+            // query matched a non-first-subbranch above sb[i]
+            if (i === 0) {
+              // style first-subbranch and parent branch
+              styleBranch(tree[b][i][2], "", 0.3);
+              styleBranch(tree[b][i][2].previousElementSibling, "Bottom", 0.3);
+            } else {
+              // style preceding non-first-subbranch
+              styleBranch(tree[b][i][2], "Left", 0.3);
+            }
           }
-          // style parent branch
-          styleBranch(subbranches[ii].previousElementSibling, "Bottom", 0.3);
         }
       }
     }
+
+    // end of subbranches loop
   } else if (branches && subbranches) {
-    // query is 0 or 1 characters
+    // query is 0 or 1 characters --> reset all styles
+    // [functionalise this code]
     for (const branch of branches) {
+      // remove branch opacity highlight and border
       styleBranch(branch, "", 0.1);
+      // reset exact matched branch color
+      branch.style.color = "#fff";
     }
     for (const subbranch of subbranches) {
+      // remove subbranch opacity highlight and border
       styleBranch(subbranch, "", 0.1);
+      // reset exact matched subbranch color
+      if (subbranch.firstElementChild) {
+        subbranch.firstElementChild.style.color = "#fff";
+      }
     }
   }
 
-  const styleBranch = (branch, edge, opacity) => {
-    // assume branch is being de-selected:
-    // set border value to transparent
-    let border = "2px solid rgba(94, 255, 0, 0)";
+  const createTree = obj => {
+    // counters for columns and rows
+    // counter var is unnecessary until sub-sub-branches occur
+    // let c = 1;
+    let r = 1;
+    // note: c and r are true referents to the grid....[useful??]
 
-    // if edge is truthy, branch is being selected:
-    // set border edge value to primary greenpl
+    for (const branch in obj) {
+      // detect parent branch
+      if (typeof obj[branch] == "object") {
+        // add parent branch name
+        document.querySelector(`.c1.r${r}`).textContent = branch;
+        // add parent branch class
+        document.querySelector(`.c1.r${r}`).classList.add("pb");
+
+        // set to column 2 for subbranches loop
+        // c = 2;
+
+        for (const subbranch of obj[branch]) {
+          // console.log("key", subbranch[0]);
+          // console.log("value", subbranch[1]);
+
+          // save subbranch DOM node
+          let sb = document.querySelector(`.c2.r${r}`);
+
+          // add ref to new subbranch DOM node back into tree.json
+          subbranch.push(sb);
+
+          // detect if subbranch display value is text or a link and assign
+          sb.innerHTML = detectLink(subbranch);
+
+          // move down to next subbranch
+          r++;
+        }
+
+        // move one up
+        r--;
+
+        // add margin-bump to last subbranch of current branch
+        document.querySelector(`.c2.r${r}`).style.marginBottom = "1rem";
+
+        // experiment: change the width of the text to fit-content?
+        // could shrink the borderline to just the width of the text
+        // it worked! should this just be generally applied? can copypasta
+        // the @supports CSS from heal_thy
+        document.querySelector(`.c2.r${r}`).style.width = "fit-content";
+        // reset for new branch
+        // c = 1;
+        r++;
+      } else {
+        document.querySelector(`.c1.r${r}`).textContent = branch;
+        // reset for new branch
+        // c = 1;
+        r++;
+      }
+    }
+    // r - 1 = total grid rows --> save to global
+    numrows = r - 1;
+    console.log(tree);
+  };
+
+  // called from query listener to dynamically style the tree
+  const styleBranch = (branch, edge, opacity) => {
+    let border;
+    // if edge is truthy, branch is being selected
+    // set border edge value to primary green var
     if (edge) {
       border = "2px solid var(--primary-color)";
+    } else {
+      // edge is falsy, branch is being de-selected
+      // set border value to transparent
+      border = "2px solid rgba(94, 255, 0, 0)";
     }
 
     // construct object from params as JSON
@@ -141,64 +188,23 @@
     Object.assign(branch.style, styleObj);
   };
 
-  // 1. set 'branch' to col-1 once, no newline
-  // 2. for subbranch length, add elm to col-2, then newline
-  // 3. after last subbranch elm, newline and set back to col-1
-  const createTree = obj => {
-    // counters for columns and rows
-    let c = 1;
-    let r = 1;
+  // returns a key-value pair as DOM string
+  // called from createTree to check if link or text
+  const detectLink = sb => {
+    if (sb[1].substring(0, 4) === "http") {
+      // set display value to a link href and use the key as the display text
+      // conditionalise if a external or local (ie to another page of the same website) link
+      // so that target="_blank" only applies to externals? or just remove it?
 
-    for (const branch in obj) {
-      // detect a parent branch
-      if (typeof obj[branch] == "object") {
-        // add content
-        document.querySelector(`.c${c}.r${r}`).textContent = branch;
-        // document.querySelector(`.c${c}.r${r}`).style.borderBottom =
-        //   "2px solid var(--primary-color)";
-        // set to column 2 for subbranches loop
-        c = 2;
-        // keep first subbranch on same line
-        r--;
-
-        // iterate by key through subbranches
-        for (const subbranch in obj[branch]) {
-          r++;
-          // add border
-          // document.querySelector(`.c${c}.r${r}`).style.borderLeft =
-          //   "2px solid var(--primary-color)";
-          // subbranch value may be text or a link
-          let value;
-
-          // detect if value is a link
-          if (obj[branch][subbranch].substring(0, 4) === "http") {
-            // set value to an <a> tag href and use the key as the display text
-            value = `<a target="_blank" href="${obj[branch][subbranch]}">${subbranch}</a>`;
-          } else {
-            // set value to value
-            value = obj[branch][subbranch];
-          }
-
-          // console.log("value", obj[branch][subbranch]);
-          // console.log("key", subbranch);
-
-          document.querySelector(`.c${c}.r${r}`).innerHTML = value;
-        }
-
-        // add margin-bump to last subbranch of current branch
-        document.querySelector(`.c2.r${r}`).style.marginBottom = "1rem";
-
-        // reset for new branch
-        c = 1;
-        r++;
-      } else {
-        document.querySelector(`.c${c}.r${r}`).textContent = branch;
-        // reset for new branch
-        c = 1;
-        r++;
-      }
+      // could this be the place to insert the bind:textContents?
+      // bind:this={${sb.push(e.target)}}
+      return `<a target="_blank" href="${sb[1]}">${sb[0]}</a>`;
+    } else {
+      // set display value to value
+      return `<p>${sb[1]}</p>`;
     }
   };
+  // on:mouseover={e.target.style.color='var(--primary-color)!important'}
 </script>
 
 <style>
@@ -209,12 +215,24 @@
     padding: 0 0.5rem;
   }
 
-  /* branches */
+  /* all branches */
   .tree div {
     padding-left: 0.2rem;
     opacity: 0.1;
     border: 2px solid rgba(94, 255, 0, 0);
     transition: all 0.8s ease-in-out;
+  }
+
+  /* subbranches */
+  .c2 {
+    /* experiment */
+    width: fit-content;
+  }
+
+  .tree div:hover
+  /* ,.link  */
+ {
+    color: var(--primary-color) !important;
   }
 
   .c1 {
@@ -223,6 +241,7 @@
 </style>
 
 <div class="wrap">
+  <!-- generate this grid using numrows calc (can't use global) -->
   <div class="tree grid-2">
     <div class="c1 r1" />
     <div class="c2 r1" />
@@ -246,6 +265,152 @@
     <div class="c2 r10" />
   </div>
 </div>
+
+<!-- ------------------------------------------------------------- -->
+<!-- CODE I HAD TO map(tree.json <==> DOM grid) THAT WERE 2MESSY:  -->
+<!-- ------------------------------------------------------------- -->
+<!-- 
+      // for (const branch of branches) {
+      // if the branch-text includes the query as a whole string, style branch
+      // if (branch.textContent.includes(query)) {
+      //   styleBranch(branch, "", 1);
+
+        // highlight exact match
+        // if (branch.textContent === query) {
+        //   branch.style.color = "var(--primary-color)";
+        // }
+    //   }
+    // }
+
+    /*
+      1.  detect parent branches
+      2.  loop through each set of subbranches
+      3.  use breaks/continues/returns (applies to all my loops tbh)
+    */
+    // highlight exact match
+    // if (subbranch.textContent === query) {
+    //   subbranch.firstElementChild.style.color = "var(--primary-color)";
+    // }
+
+    // if (subbranch.style.marginBottom === "1rem") {
+    //   // console.log("last subbranch:", subbranch);
+    //   styleBranch(subbranch, "Bottom", 0.3);
+    // }
+
+    // add styling to not-first-not-query-target-subbranch
+    //   styleBranch(subbranches[ii], "Left", 0.3);
+    // } else {
+    // add styling to subbranch target
+    //   styleBranch(subbranches[ii], "Left", 1);
+    // }
+
+    // mutable copy of index to crawl up subbranches
+    // let ii = i;
+    // let crawl = false;
+    // only run subbranch crawl if not currently on first subbranch
+    // if (!subbranch.previousElementSibling.textContent) {
+    // check if target subbranch = last subbranch
+    // (dupe condition in createTree 🤔🤔🤔)
+
+    // while the cell to my left is empty, iterate up subbranches
+    // do {
+    // if crawl is false then this is the first do loop iteration
+    // if (crawl) {
+      // test: box off branches? detect last subbranch
+
+    // console.log(ii);
+    // iterate up one subbranch
+    // ii--;
+
+    // set flag to true
+    // crawl = true;
+
+    // if textContent, the previous sibling is the parent branch
+    // } while (!subbranches[ii].previousElementSibling.textContent);
+    // }
+    // else {
+    //   console.log("skipped while loop
+    target sb is first sb");
+    // }
+
+    // check if ii is on first subbranch
+    // either by while loop iteration or
+    // if first subbranch = query target
+
+    // if (subbranches[ii].previousElementSibling.textContent) {
+      
+    //   // add styling to first subbranch
+    //   if (crawl) {
+    //     // then first subbranch is not the query target
+    //     styleBranch(subbranches[ii], "Left", 0.3);
+    //     // test: box off subbranches?
+    //     // styleBranch(subbranches[ii], "Top", 0.3);
+    //   } else {
+    //     // crawl was skipped and first subbranch is query target
+    //     styleBranch(subbranch, "Left", 1);
+    //   }
+    //   // style parent branch
+    //   styleBranch(subbranches[ii].previousElementSibling, "Bottom", 0.3);
+    // }
+    // }
+    // }
+-->
+
+<!-- ------------------------------------------------------------- -->
+<!-- IDEAS I HAD TO map(tree.json <==> DOM grid) THAT WERE 2MESSY: -->
+<!-- ------------------------------------------------------------- -->
+<!-- 
+  // how to build a mapping from json data to DOM? surely Svelte has a fix
+  // what if during createTree I create a bind:value/textContent to a specific
+  // variable, per each grid-item?
+
+  /* flow:
+      1. load json tree
+      2. (calculate size of DOM grid from JSON tree?)
+      3. createTree populates DOM tree
+      4. each b/sb has a bind:textContent
+      5. these bound values are stored in a mapping
+      6. that mapping can be used for query-matching
+      6. could values be bound directly back to the tree??
+  */
+
+  // 1. set 'branch' to col-1 once, no newline
+  // 2. for subbranch length, add elm to col-2, then newline
+  // 3. after last subbranch elm, newline and set back to col-1
+
+  // createTree is the moment I loop through tree.json:
+  // it is therefore the moment to demarcate key nodes
+  // such as first and last subbranches, or perhaps
+  // simply demarcate the indexes of all subbranches,
+  // into the DOM so that query listener can know about
+  // this structure.
+
+  // or: change branch styling loops to tree.json based rather
+  //     than DOM node based(uses filtered [unordered] arrays)
+
+  // OR: assign a reference to the newly created DOM node to sb[2]?
+  // ["primer_2027", "https://par-ity.io, [DOM_REFERENCE]"]
+
+  // console.log(document.querySelector(`.c${c}.r${r}`).className);
+
+-->
+<!-- ------------------------------------------------------------- -->
+<!-- crazy attempt to handle all possible query-tree matches smh.. -->
+<!-- 
+  // const branchCombos = [];
+  // const subbranchCombos = [];
+
+  // const sbArray = [];
+
+  // for (const branch in tree) {
+  //   if (typeof tree[branch] === "object") {
+  //     // console.log(branch);
+  //     sbArray.push(tree[branch]);
+  //   }
+  // }
+  // console.log(sbArray);
+-->
+<!-- ------------------------------------------------------------- -->
 
 <!-- console.log( subbranches[ii].previousElementSibling.previousElementSibling );
 this attempt to stop while looping over aleady visible subbranches just breaks
