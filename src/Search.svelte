@@ -2,10 +2,21 @@
   import { onMount } from "svelte";
 
   onMount(async () => {
-    // on Search component load, set focus on search bar
-    document.querySelector(".query").focus();
+    const queryDOM = document.querySelector(".query");
+    const swrapDOM = document.querySelector(".search-wrap");
 
-    // console.log(document.querySelector(".search-wrap"));
+    // use query-focus to trigger search-wrap pink outline
+    queryDOM.addEventListener("focus", e => {
+      swrapDOM.style.outline = "1px solid var(--secondary-color)";
+    });
+
+    // use query-focusout to reset search-wrap to white outline
+    queryDOM.addEventListener("focusout", e => {
+      swrapDOM.style.outline = "1px solid white";
+    });
+
+    // on Search component load, set focus on search bar
+    queryDOM.focus();
   });
 
   // import { createEventDispatcher } from "svelte";
@@ -61,9 +72,6 @@
       e.preventDefault(); // will stop event bubbling --> stops key being pressed
     }
   };
-
-  // clicking on the body (not any specific elm could call positionCursor?)
-  // how do websites set the default mouse/focus place of a website?
 
   // from https://www.geeksforgeeks.org/how-to-set-cursor-position-in-content-editable-element-using-javascript/
   // warning: setting 'pointer-events' or 'user-select' to none undermines this function
@@ -121,6 +129,7 @@
     padding-right: 0.2rem;
     outline: 1px solid white;
     cursor: text;
+    transition: outline 0.8s ease-in-out;
   }
 
   .query {
