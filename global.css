@@ -17,6 +17,11 @@
 
 /* *** START_TEST *** */
 
+/* test focus utility */
+/* .focus {
+  outline: 1px solid var(--secondary-color);
+} */
+
 /* when these rules are left in Tree.svelte, they are 
    ignored or compiled out, due to their DOM referents
    being generated in js. presumably the compiler reads
@@ -28,9 +33,12 @@
 /* all branches */
 .tree div {
   padding-left: 0.2rem;
-  opacity: 0.1;
-  border: 2px solid rgba(94, 255, 0, 0);
-  transition: all 0.8s ease-in-out;
+  border-top: 2px solid rgba(94, 255, 0, 0);
+  border-right: 2px solid rgba(94, 255, 0, 0);
+}
+
+.tree * {
+  transition: all 0.6s ease-in-out;
 }
 
 /* branches */
@@ -48,10 +56,47 @@
   }
 }
 
-.tree div:hover
-/* ,.link  */
- {
-  color: var(--primary-color) !important;
+/* branch borders */
+/* left border */
+.bl-0 {
+  border-left: 2px solid rgba(94, 255, 0, 0);
+}
+.bl-1 {
+  border-left: 2px solid rgba(94, 255, 0, 0.1);
+}
+.bl-2 {
+  border-left: 2px solid rgba(94, 255, 0, 0.3);
+}
+.bl-3 {
+  border-left: 2px solid rgba(94, 255, 0, 1);
+}
+
+/* bottom border */
+.bb-0 {
+  border-bottom: 2px solid rgba(94, 255, 0, 0);
+}
+.bb-1 {
+  border-bottom: 2px solid rgba(94, 255, 0, 0.1);
+}
+.bb-2 {
+  border-bottom: 2px solid rgba(94, 255, 0, 0.3);
+}
+.bb-3 {
+  border-bottom: 2px solid rgba(94, 255, 0, 1);
+}
+
+/* branch text */
+.t-0 {
+  color: rgba(255, 255, 255, 0);
+}
+.t-1 {
+  color: rgba(255, 255, 255, 0.1);
+}
+.t-2 {
+  color: rgba(255, 255, 255, 0.3);
+}
+.t-3 {
+  color: rgba(255, 255, 255, 1);
 }
 
 /* *** END_TEST *** */
@@ -95,14 +140,12 @@ body {
 }
 
 a {
-  /* color: var(--primary-color); */
   color: #fff;
   text-decoration: none;
 }
 
 a:hover {
   color: var(--primary-color);
-  /* color: var(--secondary-color); */
 }
 
 ul {
