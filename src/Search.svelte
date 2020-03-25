@@ -85,10 +85,12 @@
       e.key === "Delete" ||
       (e.key === "Backspace" && e.target.textContent.length === 1) ||
       (cntrlDown &&
-        // e.key === "a" ||
-        (e.key === "A" || e.key === "Delete" || e.key === "Backspace")) ||
-      e.key === "v" ||
-      e.key === "V"
+        (e.key === "a" ||
+          e.key === "A" ||
+          e.key === "Delete" ||
+          e.key === "Backspace" ||
+          e.key === "v" ||
+          e.key === "V"))
     ) {
       e.preventDefault(); // will stop event bubbling --> stops key being pressed
     }
