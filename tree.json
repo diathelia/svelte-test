@@ -1,9 +1,14 @@
 [
-  ["home", "path"],
   ["about", "path"],
   [
     "web",
     [
+      ["primer_2027", "https://par-ity.github.io/Primer-2027"],
+      ["platypus", "https://diathelia.github.io/Platypus"],
+      ["roslyn_health", "https://diathelia.github.io/heal_thy"],
+      ["primer_2027", "https://par-ity.github.io/Primer-2027"],
+      ["platypus", "https://diathelia.github.io/Platypus"],
+      ["roslyn_health", "https://diathelia.github.io/heal_thy"],
       ["primer_2027", "https://par-ity.github.io/Primer-2027"],
       ["platypus", "https://diathelia.github.io/Platypus"],
       ["roslyn_health", "https://diathelia.github.io/heal_thy"]
@@ -20,8 +25,9 @@
   [
     "loading",
     [
-      ["spinner_1", "~*x+-+x*~"],
-      ["spinner_2", "|/-|/-|/-|"]
+      ["~*x+-+x*~", "spinner_1"],
+      ["|/-\\|/-\\|", "spinner_2"],
+      ["∴∴∴∴∴∴∴∴∴∴", "spinner_3"]
     ]
   ]
 ]
