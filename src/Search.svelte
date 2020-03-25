@@ -1,42 +1,65 @@
 <script>
+  /**** IDEA ****
+   * within positionCursor, use a try/catch to try postionCursor code, and if it fails, hard-reset query and queryDOM, to avoid multi-line errors?
+   */
   import { onMount } from "svelte";
+  import { sQuery } from "./store.js";
+
+  let query;
+
+  // subscribe is one way: update sQuery, and query gets updated
+  //                       update query, and sQuery isnt updated
+  sQuery.subscribe(value => (query = value));
 
   onMount(async () => {
     const queryDOM = document.querySelector(".query");
     const swrapDOM = document.querySelector(".search-wrap");
 
     // use query-focus to trigger search-wrap pink outline
-    queryDOM.addEventListener("focus", e => {
+    queryDOM.addEventListener("focus", () => {
       swrapDOM.style.outline = "1px solid var(--secondary-color)";
     });
 
     // use query-focusout to reset search-wrap to white outline
-    queryDOM.addEventListener("focusout", e => {
+    queryDOM.addEventListener("focusout", () => {
       swrapDOM.style.outline = "1px solid white";
     });
 
+    // add hover-catchers to all of .omninav to trigger focus too
+
     // on Search component load, set focus on search bar
+    // (svelte complained about the autofocus attribute)
     queryDOM.focus();
   });
 
-  // import { createEventDispatcher } from "svelte";
-  // const dispatch = createEventDispatcher();
-  // const func = () => dispatch("eventname", var/ref);
-
-  // query is 2-way bound between Search and Tree
-  // query is textContent
-  export let query;
+  $: if (query && !/^\s/.test(query)) {
+    // debugger;
+    //MUST ADD MAPPING BACK TO STORE?
+    // IS MY ISSUE THAT THIS RUNS, CLEANS local query, leaving store query unsynced?
+    console.log("add cod here");
+    // $sQuery = ` ${query.substring(1)}`;
+    // query = " ";
+    // query = $sQuery;
+    // positionCursor();
+    // console.log(JSON.stringify(query));
+  }
 
   // tries to stop select all bug
   let cntrlDown = false;
 
   // #cancel mouse-selection of query text
-  const queryMousedown = e => {
-    e.preventDefault();
-  };
+  // const queryMousedown = e => {
+  //   e.preventDefault();
+  // };
 
-  // does this make no sense/ functionalise other stuff
-  // const toggleCntrl = (e) => e.key === 'Control' : cntrlDown = !cntrlDown
+  // catch paste event and strip formatting
+  // const queryPaste = e => {
+  //   e.preventDefault();
+  //   let d = document.createElement("div");
+  //   // let text = e.clipboardData.getData("text/plain");
+  //   d.textContent = e.clipboardData.getData("text/plain");
+  //   document.execCommand("insertText", false, d.textContent);
+  // };
 
   // watch from control key
   const queryKeyup = e => {
@@ -62,12 +85,10 @@
       e.key === "Delete" ||
       (e.key === "Backspace" && e.target.textContent.length === 1) ||
       (cntrlDown &&
-        (e.key === "a" ||
-          e.key === "A" ||
-          e.key === "Delete" ||
-          e.key === "Backspace" ||
-          e.key === "v" ||
-          e.key === "V"))
+        // e.key === "a" ||
+        (e.key === "A" || e.key === "Delete" || e.key === "Backspace")) ||
+      e.key === "v" ||
+      e.key === "V"
     ) {
       e.preventDefault(); // will stop event bubbling --> stops key being pressed
     }
@@ -77,6 +98,7 @@
   // warning: setting 'pointer-events' or 'user-select' to none undermines this function
   const positionCursor = () => {
     // relevant text-element
+    // note: needs to be fresh DOM reference
     const tag = document.querySelector(".query");
 
     if (tag.textContent.length !== 0) {
@@ -186,11 +208,12 @@
         class="query"
         contenteditable="true"
         spellcheck="false"
-        bind:textContent={query}
+        bind:textContent={$sQuery}
         on:click={positionCursor}
         on:keydown={queryKeydown}
         on:keyup={queryKeyup}
-        on:mousedown={queryMousedown} />
+        on:mousedown|preventDefault />
+      <!-- on:paste={queryPaste} -->
     </div>
   </div>
 </div>

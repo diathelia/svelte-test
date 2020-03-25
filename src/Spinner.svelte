@@ -1,9 +1,12 @@
 <style>
   .spin-wrap {
+    padding: 2rem 10rem;
+    background-color: blue;
     display: grid;
     place-content: center;
     text-align: center;
     overflow: hidden;
+    position: relative;
     /* font-size: 200%; */
   }
 
@@ -17,33 +20,62 @@
   @keyframes spin {
     0% {
       /* content: "|"; */
-      /* transform: rotate(0); */
     }
     25% {
       /* content: "\\"; */
       content: "*";
-      /* transform: skewX(100deg); */
-      /* transform: rotate(90deg); */
     }
     50% {
       /* content: "-"; */
       content: "x";
-      /* transform: skewX(200deg); */
-      /* transform: rotate(180deg); */
     }
     75% {
       /* content: "/"; */
       content: "+";
-      /* transform: skewX(100deg); */
-      /* transform: rotate(270deg); */
     }
     100% {
       /* content: "|"; */
       content: "-";
-      /* transform: skewX(360deg); */
-      /* transform: rotate(360deg); */
     }
   }
+
+  .spin-2 {
+    transform: scale(5);
+    /* transform-origin: initial 25px; */
+    transform-origin: 50% 25px;
+    /* animation-fill-mode: forwards; */
+    /* animation: spinn 0.00001s linear infinite; */
+    /* animation: spinn 0.015s linear infinite; */
+    animation: spinn 4s linear infinite;
+  }
+
+  @keyframes spinn {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* .spin-2::after {
+    z-index: -1;
+    display: inline-block;
+    content: "∴";
+    color: red;
+    transform-origin: 0px 25px;
+    animation-fill-mode: forwards;
+    animation: spinnn 8s linear infinite;
+  }
+  @keyframes spinnn {
+    0% {
+      transform: rotate(-45deg);
+    }
+    100% {
+      transform: rotate(315deg);
+      color: white;
+    }
+  } */
 </style>
 
 <br />
@@ -52,4 +84,6 @@
     loading . . .
     <span class="spin" />
   </div>
+  <br />
+  <p class="spin-2">∴</p>
 </div>
